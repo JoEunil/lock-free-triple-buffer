@@ -10,6 +10,9 @@ low-latency snapshot sharing in multithreaded environments.
 - **Back1 (Staging)**: completed writes wait here
 - **Back2 (Shared)**: all readers reference this
 
+> Structurally supports MPMC, but optimized for SPMC.  
+> Multiple writers will increase CAS contention on back1 swap.
+
 ## Design
 ### Bit-packed flag (uint16_t)
 ```
@@ -22,8 +25,7 @@ low-latency snapshot sharing in multithreaded environments.
 - **fresh (0x4000)**: back2 holds latest data, cleared on write
 - **reader count (0x3FFF)**: active readers referencing back2
 
-> ABA-safe: cycling back to flag==0 implies a new write has occurred
-
+> ABA-safe: cycling back to flag==0 implies a new write has occurred  
 ## When to use
 - Short read operations (pointer copy level)
 - Latest-snapshot-only workloads
