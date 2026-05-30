@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <atomic>
 #include <algorithm>
-#include <memory>
+#include <new>
 
 // MPMC Lock-Free Buffer
 // Eventually consistent reads via triple buffering
@@ -14,9 +14,9 @@ namespace jei {
 
 	template <typename T>
 	class TripleBuffer {
-		T* back1;
-		T* back2; // reader references this
-		std::atomic<uint16_t> flag = 0;
+		alignas(std::hardware_destructive_interference_size) T* back1;
+		alignas(std::hardware_destructive_interference_size) T* back2; // reader references this
+		alignas(std::hardware_destructive_interference_size) std::atomic<uint16_t> flag = 0;
 
 		// flag layout (16bit):
 		// [15]    write lock  : set during back1 swap
